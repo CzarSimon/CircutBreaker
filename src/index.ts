@@ -1,5 +1,5 @@
-import { BackendParser } from "./types";
 import { parseBackendId } from "./backendParser";
+import { BackendParser } from "./types";
 
 type CircutState = (0 | 1 | 2);
 
@@ -9,8 +9,8 @@ const CLOSED: CircutState = 2;
 
 interface BackendHealth {
   id: string
+  failures: number[]
   state: CircutState
-  failures: Array<number>
   openedAt?: number
 };
 
@@ -45,7 +45,7 @@ export default class CircutBreaker {
     this.state = {};
   }
 
-  isOpen(url: string) {
+  public isOpen(url: string) {
     if (!this.active) {
       return false;
     };
@@ -54,7 +54,7 @@ export default class CircutBreaker {
     return this.evaluate(id) === OPEN;
   }
 
-  record(url: string, status: number) {
+  public record(url: string, status: number) {
     if (!this.active) {
       return false;
     };
@@ -86,9 +86,9 @@ export default class CircutBreaker {
 
     this.state[id] = {
       ...backend,
-      state: nextState,
+      failures,
       openedAt: (nextState === OPEN) ? now : undefined,
-      failures
+      state: nextState,
     }
 
     return this.state[id].state
@@ -126,7 +126,7 @@ export default class CircutBreaker {
     return this.state[id];
   }
 
-  private filterFailures(backend: BackendHealth, now: number): Array<number> {
+  private filterFailures(backend: BackendHealth, now: number): number[] {
     const timespanBoundry = now - this.timespanMilliseconds;
     return backend.failures.filter((timestamp: number): boolean => timestamp > timespanBoundry);
   }
@@ -134,8 +134,8 @@ export default class CircutBreaker {
 
 function newBackend(id: string): BackendHealth {
   return {
+    failures: [],
     id,
     state: CLOSED,
-    failures: []
   }
 }
