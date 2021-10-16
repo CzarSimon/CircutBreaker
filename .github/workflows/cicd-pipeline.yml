@@ -4,20 +4,29 @@ on:
 
 jobs:
   run-tests:
-    name: run-tests
+    name: Run tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
         with:
           node-version: 14.18.1
-      - name: Get dependencies
-        run: npm install
-      - name: Check format
-        run: npm run check-format
-      - name: Audit dependencis
-        run: npm audit
-      - name: Test
-        run: npm test
+      - run: npm install
+      - run: npm run check-format
+      - run: npm audit
+      - run: npm test
+
+  publish:
+    name: Publish to NPM
+    needs:
+      - run-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14.18.1
+      - run: npm install
+      - uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
