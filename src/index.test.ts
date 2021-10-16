@@ -1,18 +1,18 @@
 import waitForExpect from 'wait-for-expect';
-import CircutBreaker from ".";
+import CircutBreaker from '.';
 
 const SERVICE_UNAVAILABLE: number = 503;
 
 test('Test CircutBreaker.isOpen not active', () => {
   const circutBreaker = new CircutBreaker({
-    active: false
+    active: false,
   });
 
-  const url = "https://mydomain.com/api/service/v1/resource";
+  const url = 'https://mydomain.com/api/service/v1/resource';
   for (let i = 0; i < 20; i++) {
     expect(circutBreaker.isOpen(url)).toBe(false);
     circutBreaker.record(url, SERVICE_UNAVAILABLE);
-  };
+  }
 });
 
 test('Test CircutBreaker state machine of active breaker with half open trip', async () => {
@@ -20,11 +20,11 @@ test('Test CircutBreaker state machine of active breaker with half open trip', a
   const cb = new CircutBreaker({
     active: true,
     failureThreshold: 2,
-    openMilliseconds
+    openMilliseconds,
   });
 
-  const url1 = "https://mydomain.com/api/serviceOne/v1/resource";
-  const url2 = "https://mydomain.com/api/serviceTwo/v1/resource";
+  const url1 = 'https://mydomain.com/api/serviceOne/v1/resource';
+  const url2 = 'https://mydomain.com/api/serviceTwo/v1/resource';
   expect(cb.isOpen(url1)).toBe(false);
 
   cb.record(url1, 500); // First fail
@@ -47,7 +47,7 @@ test('Test CircutBreaker state machine of active breaker with half open trip', a
     stateHalfOpenIsOpen = cb.isOpen(url1);
 
     cb.record(url1, 502);
-    stateHalfOpenFailNextStateIsOpen = cb.isOpen(url1)
+    stateHalfOpenFailNextStateIsOpen = cb.isOpen(url1);
   }, openMilliseconds + 50);
 
   await waitForExpect(() => {
@@ -64,10 +64,10 @@ test('Test CircutBreaker state machine of active breaker normal flow', async () 
   const cb = new CircutBreaker({
     active: true,
     failureThreshold: 2,
-    openMilliseconds
+    openMilliseconds,
   });
 
-  const url = "https://mydomain.com/api/serviceOne/v1/resource";
+  const url = 'https://mydomain.com/api/serviceOne/v1/resource';
   expect(cb.isOpen(url)).toBe(false);
   cb.record(url, 504);
   expect(cb.isOpen(url)).toBe(false);
@@ -80,7 +80,7 @@ test('Test CircutBreaker state machine of active breaker normal flow', async () 
     stateHalfOpenIsOpen = cb.isOpen(url);
 
     cb.record(url, 400);
-    stateHalfOpenSuccessNextStateIsOpen = cb.isOpen(url)
+    stateHalfOpenSuccessNextStateIsOpen = cb.isOpen(url);
   }, openMilliseconds + 50);
 
   await waitForExpect(() => {

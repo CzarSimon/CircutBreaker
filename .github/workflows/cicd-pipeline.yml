@@ -15,5 +15,7 @@ jobs:
           node-version: 14.18.1
       - name: Get dependencies
         run: npm install
+      - name: Check format
+        run: npm run check-format
       - name: Test
         run: npm test
